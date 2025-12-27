@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "nano-ui": {
+      "command": "npx",
+      "args": ["nano-ui-mcp"],
+      "env": {
+        "GEMINI_API_KEY": "${GEMINI_API_KEY}"
+      },
+      "description": "Generate unique design systems that don't look AI-generated"
+    }
+  }
+}

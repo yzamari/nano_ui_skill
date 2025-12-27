@@ -40,6 +40,46 @@ export {
 // Code Generation
 export { generateCode, type Framework, type ComponentSpec } from './generators/code';
 
+// Visual Generation (Nano Banana)
+export {
+  generateVisuals,
+  generateImagenPrompt,
+  type VisualOptions,
+  type VisualResult,
+} from './generators/visuals';
+
+// Figma Export
+export {
+  generateFigmaVariables,
+  generateStyleDictionary,
+  generateFigmaTokens,
+  generateFigmaExports,
+  type FigmaVariables,
+  type FigmaCollection,
+  type FigmaVariable,
+} from './generators/figma';
+
+// MCP Server
+export {
+  MCP_TOOLS,
+  MCP_MANIFEST,
+  handleMCPTool,
+  generateMCPConfig,
+  type MCPTool,
+  type MCPResponse,
+} from './mcp/server';
+
+// Premium API
+export {
+  handleGenerate,
+  validateApiKey,
+  checkRateLimit,
+  createHandler,
+  type APIConfig,
+  type GenerateRequest,
+  type GenerateResponse,
+} from './api/server';
+
 /**
  * Main entry point for generating a design system
  */
