@@ -95,6 +95,30 @@ Quick color palette generation in under a minute.
 ### `/nano-ui:review`
 Analyze existing UI for "AI-generated look" patterns.
 
+### `/nano-ui:upgrade`
+**Upgrade existing project UI** to a unique design system:
+1. **Scan** - Analyzes CSS, Tailwind config, and existing tokens
+2. **Score** - Rates current design uniqueness (0-100)
+3. **Identify** - Finds generic patterns (Tailwind blues, Inter font, etc.)
+4. **Migrate** - Generates replacement map and shell commands
+5. **Preserve** - Optionally keep brand colors you want to retain
+
+```bash
+# Example: Upgrade a project with generic Tailwind colors
+/nano-ui:upgrade
+
+# Output:
+📊 Current Design Score: 35/100
+
+🚨 Issues Found:
+- Generic Tailwind blue #3b82f6 detected [high]
+- Inter font as primary [medium]
+
+📋 Migration:
+#3b82f6 → #3D8F64 (Warm Forest)
+Inter → Source Sans 3
+```
+
 ## What You Get
 
 ```

@@ -390,3 +390,179 @@ describe('Phase 3: Export Features', () => {
     });
   });
 });
+
+// Phase 4: Upgrade features tests
+describe('Phase 4: Upgrade Existing Projects', () => {
+  describe('CSS Scanner', () => {
+    it('should extract CSS variables from stylesheet', async () => {
+      const { scanCSS } = await import('../generators/upgrade');
+
+      const css = `
+        :root {
+          --color-primary: #3b82f6;
+          --color-secondary: #64748b;
+          --font-sans: Inter, system-ui, sans-serif;
+          --spacing-4: 1rem;
+        }
+      `;
+
+      const result = scanCSS(css);
+      expect(result.colors).toContain('#3b82f6');
+      expect(result.colors).toContain('#64748b');
+      expect(result.fonts).toContain('Inter');
+      expect(result.variables['--color-primary']).toBe('#3b82f6');
+    });
+
+    it('should detect generic AI patterns', async () => {
+      const { analyzeForGenericPatterns } = await import('../generators/upgrade');
+
+      const genericCSS = `
+        :root {
+          --color-primary: #3b82f6;
+          --color-secondary: #6366f1;
+          --font-sans: Inter, sans-serif;
+        }
+      `;
+
+      const result = analyzeForGenericPatterns(genericCSS);
+      expect(result.issues.length).toBeGreaterThan(0);
+      expect(result.issues.some(i => i.type === 'generic-color')).toBe(true);
+      expect(result.issues.some(i => i.type === 'generic-font')).toBe(true);
+      expect(result.score).toBeLessThanOrEqual(50);
+    });
+
+    it('should recognize unique design patterns', async () => {
+      const { analyzeForGenericPatterns } = await import('../generators/upgrade');
+
+      const uniqueCSS = `
+        :root {
+          --color-primary: #2D5A4A;
+          --color-secondary: #E07A5F;
+          --font-display: Fraunces, serif;
+        }
+      `;
+
+      const result = analyzeForGenericPatterns(uniqueCSS);
+      expect(result.score).toBeGreaterThan(60);
+    });
+  });
+
+  describe('Tailwind Scanner', () => {
+    it('should extract colors from Tailwind config', async () => {
+      const { scanTailwindConfig } = await import('../generators/upgrade');
+
+      const config = `
+        module.exports = {
+          theme: {
+            extend: {
+              colors: {
+                primary: '#3b82f6',
+                secondary: '#64748b',
+                brand: {
+                  50: '#fef2f2',
+                  500: '#ef4444',
+                  900: '#7f1d1d',
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      const result = scanTailwindConfig(config);
+      expect(result.colors['primary']).toBe('#3b82f6');
+      expect(result.colors['brand-500']).toBe('#ef4444');
+    });
+
+    it('should extract fonts from Tailwind config', async () => {
+      const { scanTailwindConfig } = await import('../generators/upgrade');
+
+      const config = `
+        module.exports = {
+          theme: {
+            extend: {
+              fontFamily: {
+                sans: ['Inter', 'system-ui'],
+                display: ['Playfair Display', 'serif'],
+              }
+            }
+          }
+        }
+      `;
+
+      const result = scanTailwindConfig(config);
+      expect(result.fonts).toContain('Inter');
+      expect(result.fonts).toContain('Playfair Display');
+    });
+  });
+
+  describe('Migration Generator', () => {
+    it('should generate migration map', async () => {
+      const { generateMigration } = await import('../generators/upgrade');
+
+      const current = {
+        colors: { primary: '#3b82f6', secondary: '#64748b' },
+        fonts: ['Inter'],
+      };
+
+      const improved = {
+        colors: createTestPalette(),
+        typography: {
+          display: { family: 'Fraunces', weights: [600], rationale: 'Test' },
+          body: { family: 'Source Sans 3', weights: [400], rationale: 'Test' },
+        },
+      };
+
+      const migration = generateMigration(current, improved);
+      expect(migration.colorMappings['#3b82f6']).toBeDefined();
+      expect(migration.fontMappings['Inter']).toBeDefined();
+      expect(migration.cssReplacements.length).toBeGreaterThan(0);
+    });
+
+    it('should generate sed-style replacement commands', async () => {
+      const { generateReplacementCommands } = await import('../generators/upgrade');
+
+      const migration = {
+        colorMappings: { '#3b82f6': '#3D8F64' },
+        fontMappings: { 'Inter': 'Source Sans 3' },
+        cssReplacements: [
+          { from: '--color-primary: #3b82f6', to: '--color-primary: #3D8F64' }
+        ],
+      };
+
+      const commands = generateReplacementCommands(migration);
+      expect(commands).toContain('sed');
+      expect(commands).toContain('#3b82f6');
+      expect(commands).toContain('#3D8F64');
+    });
+  });
+
+  describe('Upgrade Workflow', () => {
+    it('should analyze project and generate report', async () => {
+      const { analyzeProject } = await import('../generators/upgrade');
+
+      const files = {
+        'styles.css': ':root { --color-primary: #3b82f6; }',
+        'tailwind.config.js': 'module.exports = { theme: { colors: { blue: "#3b82f6" } } }',
+      };
+
+      const report = await analyzeProject(files);
+      expect(report.currentScore).toBeDefined();
+      expect(report.issues).toBeDefined();
+      expect(report.recommendations).toBeDefined();
+    });
+
+    it('should preserve brand colors when specified', async () => {
+      const { generateUpgrade } = await import('../generators/upgrade');
+
+      const options = {
+        files: { 'styles.css': ':root { --brand-green: #2D5A4A; --generic-blue: #3b82f6; }' },
+        preserveColors: ['#2D5A4A'],
+      };
+
+      const result = await generateUpgrade(options);
+      expect(result.migration.colorMappings['#2D5A4A']).toBeUndefined();
+      expect(result.migration.colorMappings['#3b82f6']).toBeDefined();
+    });
+  });
+});
