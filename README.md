@@ -33,12 +33,45 @@ export GEMINI_API_KEY=your-api-key-here
 
 ### 3. Install the Plugin
 
+#### Option A: Install Globally (Recommended)
+
 ```bash
 # Clone the repository
-git clone https://github.com/nano-ui/nano-ui-skill.git
+git clone https://github.com/yahavzamari/nano_ui_skill.git
+cd nano_ui_skill
+
+# Install dependencies and build
+npm install
+npm run build
+
+# Copy to Claude Code plugins cache
+mkdir -p ~/.claude/plugins/cache/inline/nano-ui/1.0.0
+cp -r dist skills .mcp.json package.json ~/.claude/plugins/cache/inline/nano-ui/1.0.0/
+
+# Add to installed_plugins.json (or edit manually)
+# Add this entry under "plugins":
+# "nano-ui@inline": [{
+#   "scope": "user",
+#   "installPath": "~/.claude/plugins/cache/inline/nano-ui/1.0.0",
+#   "version": "1.0.0",
+#   "isLocal": true
+# }]
+
+# Enable in settings.json
+# Add to "enabledPlugins":
+# "nano-ui@inline": true
+```
+
+#### Option B: Run with Plugin Directory
+
+```bash
+# Clone and run with the plugin directory
+git clone https://github.com/yahavzamari/nano_ui_skill.git
+cd nano_ui_skill
+npm install && npm run build
 
 # Run Claude Code with the plugin
-claude --plugin-dir ./nano-ui-skill
+claude --plugin-dir ./
 ```
 
 ### 4. Generate Your First Design System
@@ -69,8 +102,54 @@ design-system/
 ├── tokens.json           # Design tokens with rationale
 ├── variables.css         # CSS custom properties
 ├── tailwind.config.js    # Tailwind configuration
-└── README.md             # Usage documentation
+├── README.md             # Usage documentation
+├── visuals/              # Visual previews (Phase 2)
+│   ├── palette.svg       # Color palette visualization
+│   ├── typography.svg    # Font showcase
+│   ├── components.svg    # UI component examples
+│   └── mockup.html       # Interactive HTML preview
+└── figma/                # Figma exports (Phase 3)
+    ├── figma-variables.json    # Figma Variables format
+    ├── style-dictionary.json   # Style Dictionary format
+    └── figma-tokens.json       # Figma Tokens plugin format
 ```
+
+## Visual Generation (Nano Banana)
+
+Generate visual previews of your design system:
+
+```bash
+# Generate visuals from tokens.json
+node scripts/generate-visuals.js ./design-system/tokens.json
+
+# Or use the skill command
+/nano-ui:design-system  # Visuals are auto-generated
+```
+
+**Generated visuals:**
+- **palette.svg** - Color swatches with hex values
+- **typography.svg** - Font family showcase
+- **components.svg** - Buttons, cards, badges, inputs
+- **mockup.html** - Interactive HTML preview page
+
+## Figma Export
+
+Export your design tokens for Figma:
+
+```bash
+# Generate Figma-compatible files
+node scripts/generate-figma.cjs
+
+# Output formats:
+# - figma-variables.json (Figma Variables API)
+# - style-dictionary.json (Style Dictionary)
+# - figma-tokens.json (Figma Tokens plugin)
+```
+
+**Import to Figma:**
+1. Install the [Figma Tokens plugin](https://www.figma.com/community/plugin/843461159747178978)
+2. Open plugin → Import → Select `figma-tokens.json`
+3. Your tokens are now available as Figma Variables
 
 ## Anti-Sameness Engine
 
