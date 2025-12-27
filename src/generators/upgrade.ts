@@ -4,7 +4,15 @@
  * @module generators/upgrade
  */
 
-import type { ColorPalette, TypographyPalette } from '../gemini-client';
+import type { ColorPalette, TypographySpec } from '../gemini-client';
+
+/**
+ * Typography palette with display and body fonts
+ */
+export interface TypographyPalette {
+  display: TypographySpec;
+  body: TypographySpec;
+}
 
 // Generic AI colors to detect (Tailwind defaults, common AI choices)
 const GENERIC_COLORS = [
@@ -275,7 +283,7 @@ export function scanTailwindConfig(config: string): TailwindScanResult {
     // First handle nested colors (before flat colors to avoid false matches)
     // Match nested colors: brand: { 50: '#hex', 500: '#hex' }
     const nestedRegex = /(\w+):\s*\{([\s\S]*?)\}/g;
-    let match;
+    let match: RegExpExecArray | null;
     while ((match = nestedRegex.exec(colorBlock)) !== null) {
       const prefix = match[1];
       const nested = match[2];
@@ -289,10 +297,13 @@ export function scanTailwindConfig(config: string): TailwindScanResult {
 
     // Match flat colors: primary: '#hex' (not followed by {)
     const flatColorRegex = /(\w+):\s*['"]?(#[0-9a-fA-F]{3,8})['"]?(?!\s*\})/g;
-    while ((match = flatColorRegex.exec(colorBlock)) !== null) {
+    let flatMatch: RegExpExecArray | null;
+    while ((flatMatch = flatColorRegex.exec(colorBlock)) !== null) {
       // Skip if this key was already added as nested
-      if (!colors[match[1]] && !Object.keys(colors).some(k => k.startsWith(match[1] + '-'))) {
-        colors[match[1]] = match[2];
+      const key = flatMatch[1];
+      const value = flatMatch[2];
+      if (!colors[key] && !Object.keys(colors).some(k => k.startsWith(key + '-'))) {
+        colors[key] = value;
       }
     }
   }
