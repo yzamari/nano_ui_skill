@@ -1,0 +1,19 @@
+{
+  "name": "nano-ui",
+  "description": "Generate unique design systems that don't look AI-generated. Uses Gemini Pro 3 + Nano Banana 3 to create distinctive UI/UX with anti-sameness engine.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Nano UI Team"
+  },
+  "homepage": "https://nano-ui.dev",
+  "repository": "https://github.com/nano-ui/nano-ui-skill",
+  "license": "MIT",
+  "keywords": [
+    "design-system",
+    "ui-ux",
+    "gemini",
+    "nano-banana",
+    "anti-ai-look",
+    "design-tokens"
+  ]
+}
